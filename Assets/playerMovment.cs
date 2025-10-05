@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
-
 public class playerMovment : MonoBehaviour
 {
     [SerializeField] private float moveForce;
@@ -68,10 +68,35 @@ public class playerMovment : MonoBehaviour
         if(other.CompareTag("Enemy"))
         {            
             Destroy(gameObject);
+            scoreText.text = "Lose" +
+                "Press R to Restart";
+            Reiniciar();
         }
     }
     private void UpdateUI()
     {
-        scoreText.text = _score.ToString();
+        scoreText.text = "Score:"+ _score.ToString();
+    }
+
+    private void Start()
+    {
+        UpdateUI();
+    }
+
+    private void WinCondision() 
+    {
+        if (_score == 4)
+        {
+            scoreText.text = "win" +
+                "Press R to restart";            
+        }
+    }
+
+    private void Reiniciar()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene("SampleScene");
+        }
     }
 }
