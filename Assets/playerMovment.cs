@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 [RequireComponent(typeof(Rigidbody))]
 
@@ -8,8 +10,10 @@ public class playerMovment : MonoBehaviour
     [SerializeField] private float jumpForce;
     [SerializeField] private float groundCheckRadius;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask climbWall;
     private Rigidbody _rigibody;
-
+    [SerializeField] private TextMeshProUGUI scoreText;
+    private int _score = 0;
     private void Awake()
     {
         _rigibody = GetComponent<Rigidbody>();
@@ -31,12 +35,17 @@ public class playerMovment : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, groundCheckRadius + 0.1f, groundLayer);
+        if (Physics.CheckSphere(transform.position,groundCheckRadius,climbWall)||Physics.Raycast(transform.position,Vector3.down,groundCheckRadius + 0.1f, groundLayer))
+        {
+            return true;
+            
+        }
+        else { return false; }
     }
 
     private void HamdelJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !IsGrounded()) 
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded()) 
         {
             _rigibody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);   
         }
@@ -44,6 +53,25 @@ public class playerMovment : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * (groundCheckRadius + 0.1f));
+        Gizmos.DrawSphere(transform.position, groundCheckRadius);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Collectible"))
+        {
+            _score += 1;
+            UpdateUI();
+            Destroy(other.gameObject);
+        }
+
+        if(other.CompareTag("Enemy"))
+        {            
+            Destroy(gameObject);
+        }
+    }
+    private void UpdateUI()
+    {
+        scoreText.text = _score.ToString();
     }
 }
